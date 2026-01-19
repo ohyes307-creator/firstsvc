@@ -92,4 +92,9 @@ form.addEventListener("reset", () => {
 requestResetBtn.addEventListener("click", () => {
   alert(
     "비밀번호는 보안을 위해 표시하지 않습니다.\n" +
-      "관리자(또는
+      "관리자(또는 담임)에게 비밀번호 재설정을 요청해 주세요."
+  );
+});
+
+// 첫 진입 UX
+studentNoInput.focus();

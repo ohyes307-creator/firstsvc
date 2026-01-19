@@ -3,14 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>우리학교 구글 계정 검색</title>
+  <title>위례한빛고 구글 계정 검색</title>
+
+  <!-- ✅ CSS 연결 (파일명/경로 맞게 수정) -->
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
   <main class="app">
     <header class="header">
-      <h1>구글 계정 검색</h1>
-      <p class="desc">학번과 이름을 입력하면 해당 구글 계정 ID를 확인할 수 있어요.</p>
+      <h1>위례한빛고 구글 계정 검색</h1>
+      <p class="desc">
+        학번, 이름, 생년월일(6자리), 휴대폰 번호 뒤 4자리를 입력하면 계정 ID를 확인할 수 있어요.
+      </p>
     </header>
 
     <section class="card" aria-label="검색 영역">
@@ -38,14 +42,42 @@
           />
         </div>
 
+        <div class="field">
+          <label for="birth">생년월일</label>
+          <input
+            id="birth"
+            name="birth"
+            type="text"
+            inputmode="numeric"
+            placeholder="예: 080315 (YYMMDD)"
+            minlength="6"
+            maxlength="6"
+            required
+          />
+          <p class="hint">숫자 6자리로 입력해 주세요. (YYMMDD)</p>
+        </div>
+
+        <div class="field">
+          <label for="phoneLast4">휴대폰 번호 뒤 4자리</label>
+          <input
+            id="phoneLast4"
+            name="phoneLast4"
+            type="password"
+            inputmode="numeric"
+            placeholder="예: 1234"
+            minlength="4"
+            maxlength="4"
+            required
+          />
+          <p class="hint">보안을 위해 입력값은 숨김 처리됩니다.</p>
+        </div>
+
         <div class="actions">
           <button id="searchBtn" type="submit">검색</button>
           <button id="resetBtn" type="reset">초기화</button>
         </div>
 
-        <p class="hint" role="note">
-          Enter 키로도 검색할 수 있어요.
-        </p>
+        <p class="hint" role="note">Enter 키로도 검색할 수 있어요.</p>
       </form>
     </section>
 

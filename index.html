@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>위례한빛고 구글 계정 검색</title>
 
-  <!-- ✅ CSS 연결 (파일명/경로 맞게 수정) -->
+  <!-- 스타일 파일 경로 맞게 수정 -->
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
@@ -13,22 +13,25 @@
     <header class="header">
       <h1>위례한빛고 구글 계정 검색</h1>
       <p class="desc">
-        학번, 이름, 생년월일(6자리), 휴대폰 번호 뒤 4자리를 입력하면 계정 ID를 확인할 수 있어요.
+        학번(5자리), 이름, 생년월일(6자리), 휴대폰 뒤 4자리를 입력 후 검색하세요.
       </p>
     </header>
 
     <section class="card" aria-label="검색 영역">
       <form id="searchForm" autocomplete="off">
         <div class="field">
-          <label for="studentNo">학번</label>
+          <label for="studentNo">학번 (5자리)</label>
           <input
             id="studentNo"
             name="studentNo"
             type="text"
             inputmode="numeric"
-            placeholder="예: 2301"
+            minlength="5"
+            maxlength="5"
+            placeholder="예: 23001"
             required
           />
+          <p class="hint">숫자 5자리</p>
         </div>
 
         <div class="field">
@@ -43,18 +46,18 @@
         </div>
 
         <div class="field">
-          <label for="birth">생년월일</label>
+          <label for="birth">생년월일 (YYMMDD)</label>
           <input
             id="birth"
             name="birth"
             type="text"
             inputmode="numeric"
-            placeholder="예: 080315 (YYMMDD)"
             minlength="6"
             maxlength="6"
+            placeholder="예: 080315"
             required
           />
-          <p class="hint">숫자 6자리로 입력해 주세요. (YYMMDD)</p>
+          <p class="hint">숫자 6자리 (YYMMDD)</p>
         </div>
 
         <div class="field">
@@ -64,12 +67,12 @@
             name="phoneLast4"
             type="password"
             inputmode="numeric"
-            placeholder="예: 1234"
             minlength="4"
             maxlength="4"
+            placeholder="예: 1234"
             required
           />
-          <p class="hint">보안을 위해 입력값은 숨김 처리됩니다.</p>
+          <p class="hint">숫자 4자리 (보안 입력)</p>
         </div>
 
         <div class="actions">
@@ -84,10 +87,10 @@
     <section class="card" aria-label="검색 결과">
       <h2>검색 결과</h2>
 
-      <!-- 상태 메시지(로딩/오류/안내) -->
+      <!-- 상태 메시지(오류/안내) -->
       <div id="status" aria-live="polite"></div>
 
-      <!-- 결과 출력 영역 -->
+      <!-- 결과 출력 -->
       <div id="result" hidden>
         <dl class="result-list">
           <div class="row">
@@ -96,20 +99,18 @@
           </div>
 
           <div class="row">
-            <dt>비밀번호</dt>
-            <dd>
-              <span id="pwPolicy">
-                보안을 위해 비밀번호는 표시하지 않아요. 아래 버튼으로 재설정을 진행하세요.
-              </span>
-            </dd>
+            <dt>비밀번호 (테스트용)</dt>
+            <dd><span id="passwordText">-</span></dd>
           </div>
         </dl>
 
         <div class="actions">
-          <button id="requestResetBtn" type="button">
-            비밀번호 재설정 요청
-          </button>
+          <button id="requestResetBtn" type="button">비밀번호 재설정</button>
         </div>
+
+        <p class="hint">
+          ※ 비밀번호를 다른 사람에게 공유하지 마세요.
+        </p>
       </div>
     </section>
 

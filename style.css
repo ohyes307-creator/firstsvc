@@ -150,7 +150,7 @@ button:active{
   background: #eef2ff;
 }
 
-/* Request reset button */
+/* Reset 안내/요청 버튼 */
 #requestResetBtn{
   background: var(--blue-100);
   color: var(--blue-600);
@@ -161,10 +161,15 @@ button:active{
   background: #cfe3ff;
 }
 
+/* ✅ 힌트 문구: field 안에서도 예쁘게 */
 .hint{
   margin: 6px 0 0;
   font-size: 12px;
   color: var(--muted);
+}
+
+.field .hint{
+  margin: 0; /* field 내부 힌트는 위아래 공간 줄임 */
 }
 
 /* Result area */
@@ -176,7 +181,7 @@ button:active{
 
 .result-list .row{
   display: grid;
-  grid-template-columns: 120px 1fr;
+  grid-template-columns: 150px 1fr; /* ✅ 라벨이 길어도 여유 */
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
@@ -200,12 +205,6 @@ dd{
   color: var(--blue-600);
 }
 
-#pwPolicy{
-  font-weight: 700;
-  color: #334155;
-}
-
-/* Status message */
 #status{
   margin-top: 6px;
   font-size: 13px;

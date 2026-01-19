@@ -1,29 +1,10 @@
 // app.js
 
-// ✅ 데모 데이터 (4가지 정보가 모두 일치해야 조회됨)
-// 실제 운영에서는 이 데이터를 프론트에 두지 말고 서버에서 조회하세요.
+// ✅ 테스트용 샘플 데이터 (실운영에서는 프론트에 개인정보/계정목록을 두면 안 됩니다)
 const ACCOUNTS = [
-  {
-    studentNo: "2301",
-    name: "홍길동",
-    birth: "080315",     // YYMMDD
-    phoneLast4: "1234",
-    googleId: "honggildong@school.edu",
-  },
-  {
-    studentNo: "2302",
-    name: "김하늘",
-    birth: "070921",
-    phoneLast4: "5678",
-    googleId: "kimhaneul@school.edu",
-  },
-  {
-    studentNo: "2303",
-    name: "이서준",
-    birth: "081102",
-    phoneLast4: "9012",
-    googleId: "leeseojun@school.edu",
-  },
+  { studentNo: "23001", name: "홍길동", birth: "080315", phoneLast4: "1234", googleId: "honggildong@school.edu" },
+  { studentNo: "23002", name: "김하늘", birth: "070921", phoneLast4: "5678", googleId: "kimhaneul@school.edu" },
+  { studentNo: "23003", name: "이서준", birth: "081102", phoneLast4: "9012", googleId: "leeseojun@school.edu" },
 ];
 
 // --- DOM ---
@@ -36,6 +17,7 @@ const phoneLast4Input = document.getElementById("phoneLast4");
 const statusEl = document.getElementById("status");
 const resultEl = document.getElementById("result");
 const googleIdEl = document.getElementById("googleId");
+const passwordTextEl = document.getElementById("passwordText");
 const requestResetBtn = document.getElementById("requestResetBtn");
 
 // --- Helpers ---
@@ -44,21 +26,19 @@ function onlyDigits(v) {
 }
 
 function normalizeStudentNo(v) {
-  return String(v ?? "").trim();
+  return onlyDigits(v).slice(0, 5); // 5자리
 }
 
-function normalizeName(v) {
-  return String(v ?? "").trim().replace(/\s+/g, "");
-}
-
-function normalizeBirthYYMMDD(v) {
-  // 숫자만 + 6자리 제한
-  return onlyDigits(v).slice(0, 6);
+function normalizeBirth(v) {
+  return onlyDigits(v).slice(0, 6); // YYMMDD 6자리
 }
 
 function normalizePhoneLast4(v) {
-  // 숫자만 + 4자리 제한
-  return onlyDigits(v).slice(0, 4);
+  return onlyDigits(v).slice(0, 4); // 4자리
+}
+
+function normalizeName(v) {
+  return String(v ?? "").trim().replace(/\s+/g, ""); // 공백 제거
 }
 
 function setStatus(message, type = "info") {
@@ -66,14 +46,16 @@ function setStatus(message, type = "info") {
   statusEl.classList.toggle("error", type === "error");
 }
 
-function showResult(googleId) {
-  googleIdEl.textContent = googleId;
-  resultEl.hidden = false;
-}
-
 function hideResult() {
   resultEl.hidden = true;
   googleIdEl.textContent = "-";
+  passwordTextEl.textContent = "-";
+}
+
+function showResult({ googleId, demoPw }) {
+  googleIdEl.textContent = googleId;
+  passwordTextEl.textContent = demoPw;
+  resultEl.hidden = false;
 }
 
 function findAccount({ studentNo, name, birth, phoneLast4 }) {
@@ -88,9 +70,35 @@ function findAccount({ studentNo, name, birth, phoneLast4 }) {
   );
 }
 
-// --- Input UX: 숫자 필드 자동 정리 (붙여넣기/한글 입력 등 방지) ---
+// ✅ 테스트용 데모 비밀번호 생성 (입력값 기반으로 "항상 같은" 데모 PW)
+// - 실제 비밀번호를 저장/조회하지 않음
+async function makeDemoPassword({ studentNo, name, birth, phoneLast4 }) {
+  const seed = `DEMO|${studentNo}|${name}|${birth}|${phoneLast4}`;
+
+  if (window.crypto?.subtle) {
+    const bytes = new TextEncoder().encode(seed);
+    const hash = await crypto.subtle.digest("SHA-256", bytes);
+    const hex = Array.from(new Uint8Array(hash))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("")
+      .toUpperCase();
+
+    // 보기 좋은 길이로 축약
+    return `TEST-${hex.slice(0, 10)}`; // 예: TEST-3A1F9C0D2B
+  }
+
+  // fallback
+  return `TEST-${birth}${phoneLast4}`;
+}
+
+// --- Input sanitize (타이핑/붙여넣기 대비) ---
+studentNoInput.addEventListener("input", () => {
+  const v = normalizeStudentNo(studentNoInput.value);
+  if (studentNoInput.value !== v) studentNoInput.value = v;
+});
+
 birthInput.addEventListener("input", () => {
-  const v = normalizeBirthYYMMDD(birthInput.value);
+  const v = normalizeBirth(birthInput.value);
   if (birthInput.value !== v) birthInput.value = v;
 });
 
@@ -100,50 +108,49 @@ phoneLast4Input.addEventListener("input", () => {
 });
 
 // --- Events ---
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const studentNo = normalizeStudentNo(studentNoInput.value);
   const name = normalizeName(studentNameInput.value);
-  const birth = normalizeBirthYYMMDD(birthInput.value);
+  const birth = normalizeBirth(birthInput.value);
   const phoneLast4 = normalizePhoneLast4(phoneLast4Input.value);
 
-  // 입력 검증
+  hideResult();
+  setStatus("");
+
+  // 검증
   if (!studentNo || !name || !birth || !phoneLast4) {
-    hideResult();
-    setStatus("학번, 이름, 생년월일(6자리), 휴대폰 뒤 4자리를 모두 입력해 주세요.", "error");
+    setStatus("학번(5자리), 이름, 생년월일(6자리), 휴대폰 뒤 4자리를 모두 입력해 주세요.", "error");
     return;
   }
-
+  if (studentNo.length !== 5) {
+    setStatus("학번은 숫자 5자리로 입력해 주세요.", "error");
+    studentNoInput.focus();
+    return;
+  }
   if (birth.length !== 6) {
-    hideResult();
     setStatus("생년월일은 숫자 6자리(YYMMDD)로 입력해 주세요.", "error");
     birthInput.focus();
     return;
   }
-
   if (phoneLast4.length !== 4) {
-    hideResult();
     setStatus("휴대폰 번호 뒤 4자리는 숫자 4자리로 입력해 주세요.", "error");
     phoneLast4Input.focus();
     return;
   }
 
-  // 상태 초기화
-  setStatus("");
-  hideResult();
-
-  // 검색
   const account = findAccount({ studentNo, name, birth, phoneLast4 });
 
   if (!account) {
-    setStatus("일치하는 계정을 찾지 못했어요. 입력 정보를 다시 확인해 주세요.", "error");
+    setStatus("일치하는 정보를 찾지 못했어요. 다시 확인해 주세요.", "error");
     return;
   }
 
-  // 성공
-  showResult(account.googleId);
-  setStatus("계정을 찾았어요! (비밀번호는 보안을 위해 표시하지 않아요.)", "info");
+  const demoPw = await makeDemoPassword({ studentNo, name, birth, phoneLast4 });
+
+  showResult({ googleId: account.googleId, demoPw });
+  setStatus("조회 완료!", "info");
 });
 
 form.addEventListener("reset", () => {
@@ -152,13 +159,10 @@ form.addEventListener("reset", () => {
   setTimeout(() => studentNoInput.focus(), 0);
 });
 
-// 비밀번호 재설정 요청 버튼 (데모)
 requestResetBtn.addEventListener("click", () => {
-  alert(
-    "비밀번호는 보안을 위해 표시하지 않습니다.\n" +
-      "관리자(또는 담임)에게 비밀번호 재설정을 요청해 주세요."
-  );
+  alert("비밀번호 재설정은 3층 교무실 공학정보부 선생님께 문의하세요");
 });
 
-// 첫 진입 UX
+// 초기 상태
+hideResult();
 studentNoInput.focus();

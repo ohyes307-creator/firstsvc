@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>우리학교 구글 계정 검색</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <h1>구글 계정 검색</h1>
+      <p class="desc">학번과 이름을 입력하면 해당 구글 계정 ID를 확인할 수 있어요.</p>
+    </header>
+
+    <section class="card" aria-label="검색 영역">
+      <form id="searchForm" autocomplete="off">
+        <div class="field">
+          <label for="studentNo">학번</label>
+          <input
+            id="studentNo"
+            name="studentNo"
+            type="text"
+            inputmode="numeric"
+            placeholder="예: 2301"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label for="studentName">이름</label>
+          <input
+            id="studentName"
+            name="studentName"
+            type="text"
+            placeholder="예: 홍길동"
+            required
+          />
+        </div>
+
+        <div class="actions">
+          <button id="searchBtn" type="submit">검색</button>
+          <button id="resetBtn" type="reset">초기화</button>
+        </div>
+
+        <p class="hint" role="note">
+          Enter 키로도 검색할 수 있어요.
+        </p>
+      </form>
+    </section>
+
+    <section class="card" aria-label="검색 결과">
+      <h2>검색 결과</h2>
+
+      <!-- 상태 메시지(로딩/오류/안내) -->
+      <div id="status" aria-live="polite"></div>
+
+      <!-- 결과 출력 영역 -->
+      <div id="result" hidden>
+        <dl class="result-list">
+          <div class="row">
+            <dt>구글 계정 ID</dt>
+            <dd><span id="googleId">-</span></dd>
+          </div>
+
+          <div class="row">
+            <dt>비밀번호</dt>
+            <dd>
+              <span id="pwPolicy">
+                보안을 위해 비밀번호는 표시하지 않아요. 아래 버튼으로 재설정을 진행하세요.
+              </span>
+            </dd>
+          </div>
+        </dl>
+
+        <div class="actions">
+          <button id="requestResetBtn" type="button">
+            비밀번호 재설정 요청
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <small>※ 본 서비스는 교내 사용자만 이용할 수 있습니다.</small>
+    </footer>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
